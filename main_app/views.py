@@ -1,8 +1,11 @@
 from django.shortcuts import render
 
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView
 # Create your views here.
 from django.http import HttpResponse
 from .models import Fish
+from .models import Toy
 
 
 def home(request):
@@ -18,3 +21,20 @@ def fishes_index(request):
 def fishes_detail(request, fish_id):
   fish = Fish.objects.get(id=fish_id)
   return render(request, 'fishes/detail.html', {'fish':fish})
+
+
+class FishCreate(CreateView):
+    model = Fish
+    fields = '__all__'
+
+class FishUpdate(UpdateView):
+  model = Fish
+  # Let's disallow the renaming of a Fish by excluding the name field!
+  fields = ['breed', 'description', 'age']
+
+class FishDelete(DeleteView):
+  model = Fish
+  success_url = '/fishes/'
+
+class ToyIndex(TemplateView):
+  template_name = 'toys/index.html'
