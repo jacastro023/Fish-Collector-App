@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from datetime import date
+
 # Create your models here.
 class Fish(models.Model):
     name = models.CharField(max_length=100)
@@ -12,7 +14,9 @@ class Fish(models.Model):
 
     def get_absolute_url(self):
         return reverse('detail', kwargs={'fish_id': self.id})
-
+    
+    def fed_for_today(self):
+        return self.feeding_set.filter(date=date.today()).count() >= len(MEALS)
 
 class Toy(models.Model):
   name = models.CharField(max_length=50)

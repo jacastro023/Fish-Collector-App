@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView
@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from django.http import HttpResponse
 from .models import Fish
 from .models import Toy
+from .forms import FeedingForm
 
 
 def home(request):
@@ -20,7 +21,8 @@ def fishes_index(request):
 
 def fishes_detail(request, fish_id):
   fish = Fish.objects.get(id=fish_id)
-  return render(request, 'fishes/detail.html', {'fish':fish})
+  feeding_form = FeedingForm()
+  return render(request, 'fishes/detail.html', {'fish':fish, 'feeding_form':feeding_form})
 
 
 class FishCreate(CreateView):
@@ -38,3 +40,15 @@ class FishDelete(DeleteView):
 
 class ToyIndex(TemplateView):
   template_name = 'toys/index.html'
+
+def add_feeding(request, fish_id):
+  # create a ModelForm instance using the data in request.POST
+  form = FeedingForm(request.POST)
+  # validate the form
+  if form.is_valid():
+    # don't save the form to the db until it
+    # has the fish_id assigned
+    new_feeding = form.save(commit=False)
+    new_feeding.fish_id = fish_id
+    new_feeding.save()
+  return redirect('detail', fish_id=fish_id)
