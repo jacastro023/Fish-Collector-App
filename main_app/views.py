@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import TemplateView
+from django.views.generic import ListView, DetailView
 # Create your views here.
 from django.http import HttpResponse
-from .models import Fish
-from .models import Toy
+from .models import Fish, Rod
 from .forms import FeedingForm
 
 
@@ -21,8 +20,9 @@ def fishes_index(request):
 
 def fishes_detail(request, fish_id):
   fish = Fish.objects.get(id=fish_id)
+  rods_fish_doesnt_have = Rod.objects.exclude(id__in = fish.rods.all().values_list('id'))
   feeding_form = FeedingForm()
-  return render(request, 'fishes/detail.html', {'fish':fish, 'feeding_form':feeding_form})
+  return render(request, 'fishes/detail.html', {'fish':fish, 'feeding_form':feeding_form, 'rods':rods_fish_doesnt_have})
 
 
 class FishCreate(CreateView):
@@ -38,8 +38,8 @@ class FishDelete(DeleteView):
   model = Fish
   success_url = '/fishes/'
 
-class ToyIndex(TemplateView):
-  template_name = 'toys/index.html'
+class RodList(ListView):
+  model = Rod
 
 def add_feeding(request, fish_id):
   # create a ModelForm instance using the data in request.POST
@@ -52,3 +52,22 @@ def add_feeding(request, fish_id):
     new_feeding.fish_id = fish_id
     new_feeding.save()
   return redirect('detail', fish_id=fish_id)
+
+def assoc_rod(request, fish_id, rod_id):
+  Fish.objects.get(id=fish_id).rods.add(rod_id)
+  return redirect('detail', fish_id=fish_id)
+
+class RodDetail(DetailView):
+  model = Rod
+
+class RodCreate(CreateView):
+  model = Rod
+  fields = '__all__'
+
+class RodUpdate(UpdateView):
+  model = Rod
+  fields = ['name', 'typeOfRod']
+
+class RodDelete(DeleteView):
+  model = Rod
+  success_url = '/rods/'

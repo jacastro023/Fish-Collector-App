@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Rod List</h1>
+
+{% for rod in rod_list %}
+  <a href="{% url 'rods_detail' rod.id %}">
+    <div class="card">
+        <div class="card-content">
+            <span class="card-title">{{ rod.name }}</span>
+            <p>Type: {{ rod.typeOfRod }}</p>
+        </div>
+    </div>
+  </a>
+{% endfor %}
+
+{% endblock %}

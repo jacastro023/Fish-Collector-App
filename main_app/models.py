@@ -2,12 +2,24 @@ from django.db import models
 from django.urls import reverse
 from datetime import date
 
+class Rod(models.Model):
+  name = models.CharField(max_length=50)
+  typeOfRod = models.CharField(max_length=20)
+
+  def __str__(self):
+    return self.name
+
+  def get_absolute_url(self):
+    return reverse('rods_detail', kwargs={'pk': self.id})
+
+
 # Create your models here.
 class Fish(models.Model):
     name = models.CharField(max_length=100)
     breed = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=250)
     age = models.IntegerField()
+    rods = models.ManyToManyField(Rod, blank=True)
 
     def __str__(self):
         return f"The fish named {self.name} has an id of {self.id}"
@@ -17,13 +29,6 @@ class Fish(models.Model):
     
     def fed_for_today(self):
         return self.feeding_set.filter(date=date.today()).count() >= len(MEALS)
-
-class Toy(models.Model):
-  name = models.CharField(max_length=50)
-  color = models.CharField(max_length=20)
-
-  def __str__(self):
-        return f"The toy named {self.name} has a color of {self.color} and an id of {self.id}"
 
 
 MEALS = (
